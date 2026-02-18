@@ -1,8 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="en">
-\1
-
+<head>
 <script>
 /* STATIC MODE (no server): force browser/system voice and prevent OpenAI TTS calls */
 window.__STATIC_MODE__ = true;
@@ -393,9 +391,88 @@ window.__STATIC_MODE__ = true;
     audio#streetAudio {
       display: none;
     }
+
+    /* === СТИЛИ ДЛЯ ЗАМКА === */
+    #gatekeeper-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #f0f2f5;
+      z-index: 99999999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: sans-serif;
+    }
+    .gatekeeper-card {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+    .gatekeeper-input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      text-align: center;
+      box-sizing: border-box;
+    }
+    .gatekeeper-button {
+      width: 100%;
+      padding: 12px;
+      background: #000;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .gatekeeper-link {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background: #fff;
+      color: #007AFF;
+      border: none;
+      text-decoration: underline;
+      font-weight: bold;
+      box-sizing: border-box;
+      margin-top: 10px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
+
+<div id="gatekeeper-overlay">
+    <div class="gatekeeper-card">
+        <h2 style="margin-top:0; color: #333;">🔒 Доступ закрыт</h2>
+        <p style="color:#666; margin-bottom:20px; font-size: 14px;">
+            Введите ключ доступа для Cashier English Trainer.
+        </p>
+        
+        <input type="text" id="access-code" placeholder="EFI-..." class="gatekeeper-input">
+        
+        <a href="https://payhip.com/b/EJdPx" target="_blank" class="gatekeeper-link">
+            Get the password
+        </a>
+
+        <div style="height: 15px;"></div>
+
+        <button onclick="checkAccess()" class="gatekeeper-button">Войти</button>
+    </div>
+</div>
+
 <div class="app">
   <div class="top-bar">
     <div>
@@ -429,7 +506,6 @@ window.__STATIC_MODE__ = true;
   </div>
 
   <div class="layout">
-    <!-- LEFT COLUMN -->
     <div class="left-column">
       <div class="panel">
         <h2>Customer</h2>
@@ -507,7 +583,6 @@ window.__STATIC_MODE__ = true;
       </div>
     </div>
 
-    <!-- RIGHT COLUMN -->
     <div class="panel">
       <h2>Products</h2>
       <div class="ru-hint">
@@ -555,6 +630,33 @@ POST /api/tts
 <audio id="streetAudio" src="street_ambience.wav" loop></audio>
 
 <script>
+// === ЛОГИКА ЗАМКА ===
+const SECRET_CODE = "EFI-2026-Al!KZ6?592<";
+const overlay = document.getElementById('gatekeeper-overlay');
+const accessInput = document.getElementById('access-code');
+
+// Проверка: вводил ли пользователь код раньше?
+if (localStorage.getItem('is_paid_cashier_v2') === 'true') {
+    overlay.style.display = 'none';
+}
+
+function checkAccess() {
+    let code = accessInput.value.trim();
+    // Защита от частых ошибок при копировании (тире и русские буквы)
+    code = code.replace(/—/g, '-').replace(/–/g, '-');
+    const map = {'А':'A', 'В':'B', 'Е':'E', 'К':'K', 'М':'M', 'Н':'H', 'О':'O', 'Р':'P', 'С':'C', 'Т':'T', 'Х':'X'};
+    code = code.replace(/[АВЕКМНОРСТХ]/g, (m) => map[m]);
+
+    if (code === SECRET_CODE) {
+        localStorage.setItem('is_paid_cashier_v2', 'true');
+        overlay.style.display = 'none';
+        alert("Доступ открыт!");
+    } else {
+        alert("Неверный код!");
+        accessInput.value = '';
+    }
+}
+
 // ---- LOCAL CUSTOMER PHOTOS ----
 const customers = [
   { id: "m1", img: "customers/male_1.jpg",   gender: "male",   style: "calm",  label: "Calm guy" },
