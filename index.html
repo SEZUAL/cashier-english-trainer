@@ -336,14 +336,9 @@ window.__STATIC_MODE__ = true;
     .footer-panel {
       margin-top: 2px;
       display: grid;
-      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.1fr);
+      grid-template-columns: 1fr;
       gap: 6px;
       font-size: 0.75rem;
-    }
-    @media (max-width: 800px) {
-      .footer-panel {
-        grid-template-columns: 1fr;
-      }
     }
     .badge {
       display: inline-flex;
@@ -357,19 +352,7 @@ window.__STATIC_MODE__ = true;
       font-weight: 600;
       margin-bottom: 4px;
     }
-    .small-code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 0.7rem;
-      background: #111827;
-      color: #e5e7eb;
-      padding: 4px 6px;
-      border-radius: 6px;
-      overflow-x: auto;
-      white-space: pre;
-      margin-top: 4px;
-    }
 
-    
     .mini-btn{
       padding: 2px 6px;
       border-radius: 6px;
@@ -478,8 +461,7 @@ window.__STATIC_MODE__ = true;
     <div>
       <div class="title">Cashier Trainer – English (NYC corner store) – v9</div>
       <div class="subtitle">
-        Интерфейс v8, но теперь есть режим: ты повторяешь заказ вслух. Если распознавание достаточно точное,
-        заказ автоматически добавляется в чек.
+        Если по какой-либо причине приложение работает некорректно, пожалуйста, воспользуйтесь компьютером для входа.
       </div>
     </div>
     <div class="controls">
@@ -510,9 +492,9 @@ window.__STATIC_MODE__ = true;
       <div class="panel">
         <h2>Customer</h2>
         <div class="ru-hint">
-          Нажимай <b>Next customer</b> → слушай заказ с разным голосом →
-          <b>Repeat voice</b> (повтор речи покупателя) или <b>Record my voice</b> (повторяешь сам) →
-          при хорошем совпадении (включая правильное количество) заказ попадёт в чек автоматически.
+          Нажимай <b>Next customer</b> → слушай заказ →
+          <b>Repeat voice</b> или <b>Record my voice</b> →
+          заказ попадёт в чек автоматически при совпадении.
         </div>
         <div class="customer-panel">
           <div class="customer-photo"><img id="customerImg" src="" alt="Customer"></div>
@@ -529,10 +511,9 @@ window.__STATIC_MODE__ = true;
           <button id="recordBtn" class="secondary">Record my voice</button>
           <button id="stopBtn" class="secondary">Stop</button>
           <span id="recStatus" class="hint" style="display:none;color:#b91c1c;font-weight:600;">Listening…</span>
-          <span class="hint">Replay или запиши свой голос. При хорошем совпадении заказ добавится в чек автоматически.</span>
         </div>
         <div class="recognized" id="recognizedBox" style="display:none;">
-          <span class="label">Recognition result (то, что услышал браузер):</span>
+          <span class="label">Recognition result:</span>
           <div class="text" id="recognizedText">—</div>
           <div class="score-line" id="scoreLine"></div>
         </div>
@@ -541,9 +522,6 @@ window.__STATIC_MODE__ = true;
       <div class="bottom-left">
         <div class="panel">
           <h2>Receipt</h2>
-          <div class="ru-hint">
-            Можно собирать чек руками (как в v8) или дать системе заполнить его по твоему голосу.
-          </div>
           <div class="receipt" id="receipt"></div>
           <div class="receipt-total" id="receiptTotal">
             <span>Total</span>
@@ -557,9 +535,6 @@ window.__STATIC_MODE__ = true;
 
         <div class="panel keypad">
           <h2>Keypad</h2>
-          <div class="ru-hint">
-            Можно сначала количество, потом товар, или наоборот: товар → количество → OK.
-          </div>
           <div class="calc-display">
             <span id="pendingInfo">Product: —</span>
             <strong id="currentQty">Qty: 1</strong>
@@ -578,16 +553,12 @@ window.__STATIC_MODE__ = true;
             <div class="calc-btn">0</div>
             <div class="calc-btn action">OK</div>
           </div>
-          <div class="hint">C очищает выбор (сбрасывает количество и снимает выбранный товар). OK добавляет текущий товар + количество в чек.</div>
         </div>
       </div>
     </div>
 
     <div class="panel">
       <h2>Products</h2>
-      <div class="ru-hint">
-        На слух ловишь: “three apples”, “two bottles of milk”, “one pack of cigarettes”… и подбираешь чек.
-      </div>
       <div class="products-grid" id="productsGrid"></div>
       <div class="hint">NYC corner store items with realistic prices.</div>
     </div>
@@ -602,27 +573,6 @@ window.__STATIC_MODE__ = true;
         <li>Сфокусируйся сначала на числе (three / two / four), потом на товаре.</li>
         <li>Если совсем потерялся – включи <b>Show text</b> как подсказку.</li>
       </ul>
-      <div class="badge" style="margin-top:6px;">Background noise</div>
-      <div style="font-size:0.72rem;">
-        Тихий звук улицы грузится из <code>street_ambience.wav</code> в той же папке. Можно заменить на реальный звук Нью-Йорка.
-      </div>
-    </div>
-    <div>
-      <div class="badge">Voice mapping</div>
-      <div style="font-size:0.72rem;">
-        Каждый клиент имеет <b>gender</b> (male / female) и <b>style</b> (calm / fast).<br>
-        При режиме <b>OpenAI TTS API</b> на сервер отправляется text + rate + gender + style, и сервер выбирает голос.<br>
-        При режиме <b>Browser voice</b> используется встроенный голос браузера.
-      </div>
-      <div class="small-code">
-// пример запроса на сервер для OpenAI TTS
-POST /api/tts
-{ "text": "...", "rate": 1.0, "gender": "female", "style": "fast" }
-      </div>
-      <div style="font-size:0.7rem;margin-top:4px;">
-        Картинки клиентов лежат в папке <code>customers/</code>: <br>
-        <code>male_1.jpg, male_2.jpg, male_3.jpg, female_1.jpg, female_2.jpg, female_3.jpg</code>
-      </div>
     </div>
   </div>
 </div>
@@ -635,14 +585,12 @@ const SECRET_CODE = "EFI-2026-Al!KZ6?592<";
 const overlay = document.getElementById('gatekeeper-overlay');
 const accessInput = document.getElementById('access-code');
 
-// Проверка: вводил ли пользователь код раньше?
 if (localStorage.getItem('is_paid_cashier_v2') === 'true') {
     overlay.style.display = 'none';
 }
 
 function checkAccess() {
     let code = accessInput.value.trim();
-    // Защита от частых ошибок при копировании (тире и русские буквы)
     code = code.replace(/—/g, '-').replace(/–/g, '-');
     const map = {'А':'A', 'В':'B', 'Е':'E', 'К':'K', 'М':'M', 'Н':'H', 'О':'O', 'Р':'P', 'С':'C', 'Т':'T', 'Х':'X'};
     code = code.replace(/[АВЕКМНОРСТХ]/g, (m) => map[m]);
@@ -682,7 +630,6 @@ const products = [
   { id: 'rice',       name: 'Rice',       price: 4.50, unit: 'bag',    icon: '🍚' }
 ];
 
-// ---- NYC-STYLE ORDERS ----
 const orders = {
   A1: [
     { text: "Hey, can I grab three apples, please?", items: [{id:'apple', qty:3}] },
@@ -739,10 +686,15 @@ const thanksPhrases = [
 let basket = [];
 let currentOrder = null;
 let currentCustomer = null;
-
 let pendingProductId = null;
 let qtyBuffer = "";
 let qtyValue = 1;
+let lastOrderText = "";
+let bgAudioStarted = false;
+let recognition = null;
+let isRecording = false;
+let lastAction = null; 
+let undoTimer = null;
 
 const productsGrid = document.getElementById("productsGrid");
 const receiptEl = document.getElementById("receipt");
@@ -759,21 +711,12 @@ const pendingInfoEl = document.getElementById("pendingInfo");
 const customerImgEl = document.getElementById("customerImg");
 const speedSelect = document.getElementById("speedSelect");
 const showTranscriptCheckbox = document.getElementById("showTranscript");
-const voiceEngineSelect = document.getElementById("voiceEngine"); // may be null if UI hidden
 const recordBtn = document.getElementById("recordBtn");
 const stopBtn = document.getElementById("stopBtn");
 const recStatusEl = document.getElementById("recStatus");
 const recognizedBox = document.getElementById("recognizedBox");
 const recognizedTextEl = document.getElementById("recognizedText");
 const scoreLineEl = document.getElementById("scoreLine");
-
-let lastOrderText = "";
-let bgAudioStarted = false;
-let recognition = null;
-let isRecording = false;
-
-let lastAction = null; // snapshot of basket before last change
-let undoTimer = null;
 
 function cloneBasket(b){ return b.map(x => ({id:x.id, qty:x.qty})); }
 
@@ -806,7 +749,6 @@ function undoLast(){
   lastAction = null;
 }
 
-// --- similarity helpers for speech result vs original text ---
 function tokenize(str) {
   return str.toLowerCase()
     .replace(/[^a-z0-9\s]/g, " ")
@@ -818,12 +760,12 @@ const stopWords = new Set(["hey","hi","yo","can","i","get","let","me","just","pl
   "actually","and","the","a","to","of","one","two","three","four","five","six","seven","eight","nine","ten",
   "morning","good","lot","so","much","bag","bottle","bottles","pack","loaf","some","grab","have","take","like"]);
 
-// ---- number parsing (for voice validation) ----
 const numberWords = {
   "zero":0,"one":1,"two":2,"three":3,"four":4,"five":5,"six":6,"seven":7,"eight":8,"nine":9,"ten":10,
   "eleven":11,"twelve":12,"thirteen":13,"fourteen":14,"fifteen":15,"sixteen":16,"seventeen":17,"eighteen":18,"nineteen":19,
   "twenty":20
 };
+
 function parseNumberToken(tok){
   tok = tok.toLowerCase();
   if (tok in numberWords) return numberWords[tok];
@@ -832,12 +774,11 @@ function parseNumberToken(tok){
   return null;
 }
 
-// Map productId to keywords/phrases the recognizer might output (lenient, NYC-style)
 const productKeywords = {
   "apple":      ["apple","apples"],
   "bananas":    ["banana","bananas"],
   "milk":       ["milk"],
-  "bread":      ["bread","loaf","loaves"], // accept "one bread", "a loaf (of) bread", etc.
+  "bread":      ["bread","loaf","loaves"],
   "sugar":      ["sugar"],
   "water":      ["water","water bottle"],
   "soda":       ["soda","sodas","pop"],
@@ -846,7 +787,6 @@ const productKeywords = {
   "cigarettes": ["cigarette","cigarettes","cigs"]
 };
 
-// Also support common multi-word phrases (checked against raw lowercased transcript)
 const productPhrases = {
   "bread": ["loaf of bread", "a loaf of bread", "bread"],
   "water": ["bottle of water", "a bottle of water", "water bottle", "water"],
@@ -854,65 +794,39 @@ const productPhrases = {
   "cigarettes": ["pack of cigarettes", "a pack of cigarettes", "cigs", "cigarettes"]
 };
 
-// Extract a *meaning* map from speech: which products were mentioned + (optional) qty.
-// qty=null means "user mentioned the product but we couldn't reliably hear a number".
 function extractSpokenOrder(text){
   const raw = (text || "").toLowerCase();
-  const toks = tokenize(text); // lower + punctuation removed
-  const result = {}; // {productId: {qty:number|null, mentioned:true}}
-
+  const toks = tokenize(text);
+  const result = {};
   function mark(pid, qty){
     if (!result[pid]) result[pid] = { qty: null, mentioned: true };
-    // If we detect a number for the same product, prefer the last detected number
     if (typeof qty === "number") result[pid].qty = qty;
   }
-
-  // Phrase pass (more robust when SpeechRecognition returns multi-word chunks)
   for (const [pid, phrases] of Object.entries(productPhrases)){
     for (const ph of phrases){
-      if (raw.includes(ph)){
-        mark(pid, null);
-        break;
-      }
+      if (raw.includes(ph)){ mark(pid, null); break; }
     }
   }
-
-  // Token pass: find product keywords and look back for a number within 4 tokens.
   for (let i=0;i<toks.length;i++){
     for (const [pid, keys] of Object.entries(productKeywords)){
       if (!keys.includes(toks[i])) continue;
-
       let qty = null;
       for (let back=1; back<=4; back++){
         const j = i-back;
         if (j < 0) break;
         const n = parseNumberToken(toks[j]);
-        if (n !== null){
-          qty = n;
-          break;
-        }
+        if (n !== null){ qty = n; break; }
       }
       mark(pid, qty);
     }
   }
-
-  return result; // {pid:{qty,mentioned}}
+  return result;
 }
 
 function expectedOrderMap(order){
   const m = {};
   (order.items || []).forEach(it => { m[it.id] = (m[it.id] || 0) + it.qty; });
   return m;
-}
-
-function sameProducts(expectedMap, spokenMap){
-  const expKeys = Object.keys(expectedMap).sort();
-  const spkKeys = Object.keys(spokenMap).sort();
-  if (expKeys.length !== spkKeys.length) return false;
-  for (let i=0;i<expKeys.length;i++){
-    if (expKeys[i] !== spkKeys[i]) return false;
-  }
-  return true;
 }
 
 function filterImportant(tokens) {
@@ -925,19 +839,14 @@ function calcSimilarity(reference, spoken) {
   if (!refTokens.length) return 0;
   const spokenSet = new Set(spokenTokens);
   let common = 0;
-  refTokens.forEach(t => {
-    if (spokenSet.has(t)) common++;
-  });
+  refTokens.forEach(t => { if (spokenSet.has(t)) common++; });
   return common / refTokens.length;
 }
 
 function initRecognition() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
-    feedbackEl.textContent = "SpeechRecognition API не поддерживается в этом браузере. Попробуй Chrome или Edge на десктопе.";
-    feedbackEl.className = "feedback wrong";
-    if (recordBtn) recordBtn.disabled = true;
-    if (stopBtn) stopBtn.disabled = true;
+    feedbackEl.textContent = "SpeechRecognition not supported.";
     return;
   }
   recognition = new SR();
@@ -945,135 +854,50 @@ function initRecognition() {
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
 
-  recognition.onstart = () => {
-    isRecording = true;
-    if (recStatusEl) recStatusEl.style.display = "inline";
-  };
-  recognition.onerror = (e) => {
-    isRecording = false;
-    if (recStatusEl) recStatusEl.style.display = "none";
-    feedbackEl.textContent = "Ошибка распознавания: " + e.error;
-    feedbackEl.className = "feedback wrong";
-  };
-  recognition.onend = () => {
-    isRecording = false;
-    if (recStatusEl) recStatusEl.style.display = "none";
-  };
+  recognition.onstart = () => { isRecording = true; recStatusEl.style.display = "inline"; };
+  recognition.onerror = () => { isRecording = false; recStatusEl.style.display = "none"; };
+  recognition.onend = () => { isRecording = false; recStatusEl.style.display = "none"; };
   recognition.onresult = (e) => {
     const text = e.results[0][0].transcript;
-    if (recognizedBox) recognizedBox.style.display = "block";
-    if (recognizedTextEl) recognizedTextEl.textContent = text;
-    if (!currentOrder || !lastOrderText) {
-      if (scoreLineEl) scoreLineEl.textContent = "Нет активного заказа (нажми Next customer).";
-      return;
-    }
+    recognizedBox.style.display = "block";
+    recognizedTextEl.textContent = text;
+    if (!currentOrder || !lastOrderText) return;
     const score = calcSimilarity(lastOrderText, text);
-    const percent = Math.round(score * 100);
-
-    // Validation (lenient meaning): user does NOT need a perfect sentence.
-// Goal: understand intended items; quantities are strict only when we *clearly* heard a number.
-// If qty is not confidently heard, we still accept when products match.
     const spokenMap = extractSpokenOrder(text);
     const expectedMap = expectedOrderMap(currentOrder);
-
     const expectedKeys = Object.keys(expectedMap);
-    const spokenKeys = Object.keys(spokenMap);
-
     const productsMatch = expectedKeys.every(k => spokenMap[k]?.mentioned);
-    const noExtraProducts = spokenKeys.every(k => expectedMap[k] !== undefined); // prevent random extra items
+    const noExtraProducts = Object.keys(spokenMap).every(k => expectedMap[k] !== undefined);
     const qtyOk = productsMatch && expectedKeys.every(k => {
       const heard = spokenMap[k]?.qty;
-      if (heard === null || heard === undefined) return true; // couldn't hear number → accept
-      return heard === expectedMap[k]; // heard a number → must match
+      if (heard === null || heard === undefined) return true;
+      return heard === expectedMap[k];
     });
 
-    const meaningOk = productsMatch && noExtraProducts && qtyOk;
-
-    // Lower similarity threshold to allow natural/NYC phrasing like "one bread", "gimme water", etc.
-    if (score >= 0.45 && meaningOk){
-      if (scoreLineEl) scoreLineEl.innerHTML = 'Score: <strong class="good">' + percent + '%</strong> – close enough. Meaning understood. Order added.';
+    if (score >= 0.45 && productsMatch && noExtraProducts && qtyOk){
+      scoreLineEl.innerHTML = 'Score: <strong class="good">OK</strong> – Order added.';
       basket = currentOrder.items.map(it => ({ id: it.id, qty: it.qty }));
       renderBasket();
-      feedbackEl.textContent = "Good: I understood the items. (Your sentence doesn’t have to be perfect.) Order was auto-filled.";
-      feedbackEl.className = "feedback correct";
       const phrase = randomThanks();
       lastOrderText = phrase;
       updateBubbleText();
       speak(phrase, currentCustomer);
     } else {
-      // Helpful feedback (lenient matching)
-      if (!productsMatch) {
-        if (scoreLineEl) scoreLineEl.innerHTML = 'Score: <strong class="bad">' + percent + '%</strong> – I didn\'t catch the items.';
-        feedbackEl.innerHTML =
-          "Try again. You don’t need a perfect sentence — just say the items clearly.<br>" +
-          "<strong>Examples:</strong> <em>one bread</em>, <em>a loaf of bread</em>, <em>one bottle of water</em>, <em>water</em>.";
-        feedbackEl.className = "feedback wrong";
-        return;
-      }
-
-      if (!noExtraProducts) {
-        const extra = spokenKeys.filter(k => expectedMap[k] === undefined)
-          .map(id => (products.find(pr => pr.id === id)?.name || id))
-          .join(", ");
-        if (scoreLineEl) scoreLineEl.innerHTML = 'Score: <strong class="bad">' + percent + '%</strong> – extra item heard.';
-        feedbackEl.innerHTML = "I heard an extra item: <strong>" + extra + "</strong>. Try again and say only what the customer asked for.";
-        feedbackEl.className = "feedback wrong";
-        return;
-      }
-
-      // Quantity mismatch only when we clearly heard a number that differs.
-      const mismatches = expectedKeys.filter(k => {
-        const heard = spokenMap[k]?.qty;
-        return (heard !== null && heard !== undefined && heard !== expectedMap[k]);
-      });
-
-      if (mismatches.length) {
-        const expStr = mismatches.map(id => {
-          const p = products.find(pr => pr.id === id);
-          return expectedMap[id] + " × " + (p ? p.name : id);
-        }).join(", ");
-
-        const heardStr = mismatches.map(id => {
-          const p = products.find(pr => pr.id === id);
-          const heard = spokenMap[id]?.qty;
-          return heard + " × " + (p ? p.name : id);
-        }).join(", ");
-
-        if (scoreLineEl) scoreLineEl.innerHTML = 'Score: <strong class="bad">' + percent + '%</strong> – quantity mismatch.';
-        feedbackEl.innerHTML = "Wrong quantity. Expected: <strong>" + expStr + "</strong>. I heard: <strong>" + heardStr + "</strong>. Try again.";
-        feedbackEl.className = "feedback wrong";
-        return;
-      }
-
-      if (scoreLineEl) scoreLineEl.innerHTML = 'Score: <strong class="bad">' + percent + '%</strong> – not close enough.';
-      feedbackEl.textContent = "Try again: speak a little slower and clearly say the items (number + product).";
-      feedbackEl.className = "feedback wrong";
+      scoreLineEl.innerHTML = '<strong class="bad">Try again</strong>';
     }
   };
 }
 
-function startRecording() {
-  if (!recognition || isRecording) return;
-  try { recognition.start(); } catch(e) {}
-}
+function startRecording() { if (recognition && !isRecording) try { recognition.start(); } catch(e) {} }
+function stopRecordingFunc() { if (recognition && isRecording) recognition.stop(); }
 
-function stopRecordingFunc() {
-  if (!recognition || !isRecording) return;
-  recognition.stop();
-}
-
-// ---- RENDER PRODUCTS ----
 function renderProducts(){
   productsGrid.innerHTML = "";
   products.forEach(p => {
     const div = document.createElement("div");
     div.className = "product-card";
     div.dataset.id = p.id;
-    div.innerHTML = `
-      <div class="product-photo">${p.icon}</div>
-      <div class="product-name">${p.name}</div>
-      <div class="product-price">$${p.price.toFixed(2)} / ${p.unit}</div>
-    `;
+    div.innerHTML = `<div class="product-photo">${p.icon}</div><div class="product-name">${p.name}</div><div class="product-price">$${p.price.toFixed(2)}</div>`;
     div.addEventListener("click", () => selectProduct(p.id));
     productsGrid.appendChild(div);
   });
@@ -1083,348 +907,128 @@ function updatePendingDisplay(){
   const product = pendingProductId ? products.find(p => p.id === pendingProductId) : null;
   pendingInfoEl.textContent = "Product: " + (product ? product.name : "—");
   currentQtyEl.textContent = "Qty: " + (qtyValue || 1);
-  document.querySelectorAll(".product-card").forEach(card => {
-    card.classList.toggle("active", card.dataset.id === pendingProductId);
-  });
+  document.querySelectorAll(".product-card").forEach(card => card.classList.toggle("active", card.dataset.id === pendingProductId));
 }
 
-function selectProduct(id){
-  pendingProductId = id;
-  if (!qtyBuffer && qtyValue < 1) qtyValue = 1;
-  updatePendingDisplay();
-}
+function selectProduct(id){ pendingProductId = id; updatePendingDisplay(); }
 
 function addPendingToBasket(){
-  if (!pendingProductId){
-    feedbackEl.textContent = "Pick a product first (right side). Then set quantity and press OK.";
-    feedbackEl.className = "feedback wrong";
-    return;
-  }
-
+  if (!pendingProductId) return;
   const before = cloneBasket(basket);
-  const productId = pendingProductId;
   const qty = qtyValue > 0 ? qtyValue : 1;
-  const existing = basket.find(i => i.id === productId);
-  if (existing){
-    existing.qty += qty;
-  } else {
-    basket.push({id: productId, qty});
-  }
-
-  qtyBuffer = "";
-  qtyValue = 1;
-  renderBasket();
-  updatePendingDisplay();
-
-  const p = products.find(x => x.id === productId);
-  setLastAction(before, `Added ${qty} × ${p ? p.name : productId}. Undo?`);
-  feedbackEl.textContent = "";
-  feedbackEl.className = "feedback";
+  const existing = basket.find(i => i.id === pendingProductId);
+  if (existing) existing.qty += qty; else basket.push({id: pendingProductId, qty});
+  qtyBuffer = ""; qtyValue = 1;
+  renderBasket(); updatePendingDisplay();
+  setLastAction(before, `Added items. Undo?`);
 }
 
 function renderBasket(){
   receiptEl.innerHTML = "";
   let total = 0;
-
-  if (!basket.length){
-    const empty = document.createElement("div");
-    empty.style.color = "#6b7280";
-    empty.style.fontSize = "0.75rem";
-    empty.textContent = "Cart is empty.";
-    receiptEl.appendChild(empty);
-  }
-
-  basket.forEach((item, idx) => {
+  if (!basket.length) receiptEl.innerHTML = '<div style="color:#6b7280; font-size:0.75rem;">Cart is empty.</div>';
+  basket.forEach(item => {
     const product = products.find(p => p.id === item.id);
     if (!product) return;
-
-    const lineTotal = product.price * item.qty;
-    total += lineTotal;
-
+    total += product.price * item.qty;
     const line = document.createElement("div");
     line.className = "receipt-line";
-    line.style.alignItems = "center";
-
-    line.innerHTML = `
-      <span style="display:flex;gap:6px;align-items:center;min-width:0;flex:1;">
-        <strong style="min-width:54px;">${item.qty} x</strong>
-        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${product.name}</span>
-      </span>
-
-      <span style="display:flex;gap:4px;align-items:center;flex-shrink:0;">
-        <button class="mini-btn" data-act="minus" data-id="${product.id}" title="Minus 1">−</button>
-        <button class="mini-btn" data-act="plus"  data-id="${product.id}" title="Plus 1">+</button>
-        <button class="mini-btn danger" data-act="remove" data-id="${product.id}" title="Remove item">✕</button>
-        <span style="min-width:70px;text-align:right;">$${lineTotal.toFixed(2)}</span>
-      </span>
-    `;
-
+    line.innerHTML = `<span>${item.qty} x ${product.name}</span> <button class="mini-btn danger" data-act="remove" data-id="${product.id}">✕</button>`;
     receiptEl.appendChild(line);
   });
-
   receiptTotalEl.textContent = "$" + total.toFixed(2);
 }
 
-function randomCustomer(){
-  return customers[Math.floor(Math.random() * customers.length)];
-}
-
-function randomMeta(level){
-  const levelText = {
-    A1:"Easy order • NYC corner store",
-    A2:"Medium order • NYC corner store",
-    B1:"Hard order + corrections • NYC corner store"
-  };
-  return levelText[level];
-}
-
-function updateBubbleText(){
-  if (!currentOrder && !lastOrderText){
-    bubbleEl.innerHTML = 'Press “Next customer” to start.<small>First listen, then open the text.</small>';
-    return;
-  }
-  if (showTranscriptCheckbox.checked){
-    bubbleEl.innerHTML = lastOrderText + '<small>Listen first, then read.</small>';
-  } else {
-    bubbleEl.innerHTML = 'Transcript hidden.<small>Use your ears – listening only mode.</small>';
-  }
-}
-
-// ---- VOICE HANDLING ----
-function guessVoiceByGender(voices, gender){
-  if (!voices || !voices.length) return null;
-  const enVoices = voices.filter(v => v.lang && v.lang.startsWith("en"));
-  if (!enVoices.length) return voices[0];
-
-  const femaleNames = ["samantha","karen","victoria","zoe","emma","olivia","susan","anna","serena","ava","alloy","nova","shimmer","fable"];
-  const maleNames   = ["daniel","david","michael","alex","fred","george","mark","john","paul","onyx","echo","sage","verse","ballad"];
-
-  if (gender === "female"){
-    let v = enVoices.find(v => femaleNames.some(n => v.name.toLowerCase().includes(n)));
-    if (v) return v;
-  } else if (gender === "male"){
-    let v = enVoices.find(v => maleNames.some(n => v.name.toLowerCase().includes(n)));
-    if (v) return v;
-  }
-  return enVoices[0];
-}
-
-function speakSystem(text, gender, style){
+function speak(text, opts){
   if (!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = "en-US";
-  const voices = window.speechSynthesis.getVoices();
-  if (voices.length){
-    const match = guessVoiceByGender(voices, gender);
-    if (match) utter.voice = match;
-  }
-  const baseRate = parseFloat(speedSelect.value) || 1.0;
-  let styleMult = 1.0;
-  if (style === "calm") styleMult = 0.9;
-  if (style === "fast") styleMult = 1.15;
-  utter.rate = baseRate * styleMult;
-  window.speechSynthesis.cancel();
+  utter.rate = parseFloat(speedSelect.value) || 1.0;
   window.speechSynthesis.speak(utter);
 }
 
-async function speakOpenAI(text, gender, style){
-  try {
-    const baseRate = parseFloat(speedSelect.value) || 1.0;
-    let styleMult = 1.0;
-    if (style === "calm") styleMult = 0.9;
-    if (style === "fast") styleMult = 1.15;
-    const rate = baseRate * styleMult;
-
-    const res = await fetch("/api/tts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, rate, gender: gender || null, style: style || null })
-    });
-    if (!res.ok) throw new Error("TTS HTTP error " + res.status);
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const audio = new Audio(url);
-    audio.play();
-  } catch (err){
-    console.error("OpenAI TTS failed, falling back to system voice:", err);
-    speakSystem(text, gender, style);
-  }
-}
-
-function speak(text, opts){
-  const engine = voiceEngineSelect ? voiceEngineSelect.value : "system";
-  const gender = opts && opts.gender ? opts.gender : null;
-  const style  = opts && opts.style  ? opts.style  : null;
-  if (engine === "openai"){
-    speakOpenAI(text, gender, style);
-  } else {
-    speakSystem(text, gender, style);
-  }
-}
-
-// ---- BG NOISE ----
 function startBackgroundNoise(){
   if (bgAudioStarted) return;
   bgAudioStarted = true;
   const audioEl = document.getElementById("streetAudio");
-  if (audioEl){
-    audioEl.volume = 0.08;
-    audioEl.play().catch(() => {});
-  }
+  if (audioEl){ audioEl.volume = 0.08; audioEl.play().catch(() => {}); }
 }
 
-// ---- ORDERS ----
 function newOrder(){
-  const level = levelSelect.value;
-  const list = orders[level];
+  const list = orders[levelSelect.value];
   currentOrder = list[Math.floor(Math.random() * list.length)];
-  basket = [];
-  qtyBuffer = "";
-  qtyValue = 1;
-  pendingProductId = null;
+  basket = []; qtyBuffer = ""; qtyValue = 1; pendingProductId = null;
   renderBasket();
-  feedbackEl.textContent = "";
-  feedbackEl.className = "feedback";
-
-  currentCustomer = randomCustomer();
+  currentCustomer = customers[Math.floor(Math.random() * customers.length)];
   customerImgEl.src = currentCustomer.img;
   lastOrderText = currentOrder.text;
   updateBubbleText();
-  customerMetaEl.textContent = randomMeta(level) + " • " + currentCustomer.label;
+  customerMetaEl.textContent = "NYC Store • " + currentCustomer.label;
   updatePendingDisplay();
   startBackgroundNoise();
-
-  // сброс предыдущего распознавания
-  if (recognizedBox) recognizedBox.style.display = "none";
-  if (recognizedTextEl) recognizedTextEl.textContent = "—";
-  if (scoreLineEl) scoreLineEl.textContent = "";
-
   speak(currentOrder.text, currentCustomer);
 }
 
-function repeatOrder(){
-  if (lastOrderText){
-    speak(lastOrderText, currentCustomer);
-  }
-}
-
-function randomThanks(){
-  return thanksPhrases[Math.floor(Math.random() * thanksPhrases.length)];
-}
+function repeatOrder(){ if (lastOrderText) speak(lastOrderText, currentCustomer); }
+function randomThanks(){ return thanksPhrases[Math.floor(Math.random() * thanksPhrases.length)]; }
 
 function submitOrder(){
-  if (!currentOrder){
-    feedbackEl.textContent = "Start an order first: press Next customer."; 
-    feedbackEl.className = "feedback wrong";
-    return;
-  }
-  const expected = JSON.parse(JSON.stringify(currentOrder.items)).sort((a,b)=>a.id.localeCompare(b.id));
-  const actual = JSON.parse(JSON.stringify(basket)).sort((a,b)=>a.id.localeCompare(b.id));
-  let correct = expected.length === actual.length;
+  if (!currentOrder) return;
+  const correct = JSON.stringify(currentOrder.items.sort((a,b)=>a.id.localeCompare(b.id))) === JSON.stringify(basket.sort((a,b)=>a.id.localeCompare(b.id)));
   if (correct){
-    for (let i = 0; i < expected.length; i++){
-      if (!actual[i] || expected[i].id !== actual[i].id || expected[i].qty !== actual[i].qty){
-        correct = false;
-        break;
-      }
-    }
-  }
-  if (correct){
-    feedbackEl.textContent = "Correct! You matched the order.";
+    feedbackEl.textContent = "Correct!";
     feedbackEl.className = "feedback correct";
     const phrase = randomThanks();
-    lastOrderText = phrase;
-    updateBubbleText();
+    lastOrderText = phrase; updateBubbleText();
     speak(phrase, currentCustomer);
   } else {
-    const expectedText = expected.map(e => {
-      const p = products.find(pr => pr.id === e.id);
-      return e.qty + " x " + p.name;
-    }).join(", ");
-    feedbackEl.innerHTML = 'Not exact. Expected: <strong>' + expectedText + "</strong>";
+    feedbackEl.textContent = "Incorrect.";
     feedbackEl.className = "feedback wrong";
   }
 }
 
-// ---- KEYPAD ----
 function setupKeypad(){
-  const buttons = document.querySelectorAll(".calc-btn");
-  buttons.forEach(btn => {
+  document.querySelectorAll(".calc-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       const val = btn.textContent.trim();
-      if (btn.classList.contains("clear")){
-        // Clear key: resets quantity AND clears selected product (so you can start fresh)
-        qtyBuffer = "";
-        qtyValue = 1;
-        pendingProductId = null;
-      } else if (btn.classList.contains("action")){
-        addPendingToBasket();
-      } else if (/^[0-9]$/.test(val)){
-        if (qtyBuffer.length < 3){
-          qtyBuffer += val;
-          qtyValue = parseInt(qtyBuffer, 10) || 1;
-        }
-      }
+      if (btn.classList.contains("clear")){ qtyBuffer = ""; qtyValue = 1; pendingProductId = null; }
+      else if (btn.classList.contains("action")){ addPendingToBasket(); }
+      else if (/^[0-9]$/.test(val)){ if (qtyBuffer.length < 3){ qtyBuffer += val; qtyValue = parseInt(qtyBuffer, 10); } }
       updatePendingDisplay();
     });
   });
 }
 
-// ---- INIT ----
+function updateBubbleText(){
+  if (!lastOrderText) return;
+  bubbleEl.innerHTML = showTranscriptCheckbox.checked ? lastOrderText : 'Transcript hidden.';
+}
+
 renderProducts();
 updatePendingDisplay();
 setupKeypad();
 initRecognition();
-
-// First placeholder customer
 currentCustomer = customers[0];
 customerImgEl.src = currentCustomer.img;
 
-// Receipt controls (plus/minus/remove)
 receiptEl.addEventListener("click", (e) => {
   const btn = e.target.closest(".mini-btn");
-  if (!btn) return;
-  const act = btn.dataset.act;
-  const id = btn.dataset.id;
-  const before = cloneBasket(basket);
-
-  const item = basket.find(x => x.id === id);
-  if (!item) return;
-
-  if (act === "plus"){
-    item.qty += 1;
-    setLastAction(before, "Quantity increased. Undo?");
-  } else if (act === "minus"){
-    item.qty -= 1;
-    if (item.qty <= 0){
-      basket = basket.filter(x => x.id !== id);
-      setLastAction(before, "Item removed. Undo?");
-    } else {
-      setLastAction(before, "Quantity decreased. Undo?");
-    }
-  } else if (act === "remove"){
-    basket = basket.filter(x => x.id !== id);
-    setLastAction(before, "Item removed. Undo?");
+  if (btn && btn.dataset.act === "remove"){
+    const before = cloneBasket(basket);
+    basket = basket.filter(x => x.id !== btn.dataset.id);
+    renderBasket();
+    setLastAction(before, "Removed item.");
   }
-
-  renderBasket();
 });
 
-// Undo button
-const undoBtn = document.getElementById("undoBtn");
-if (undoBtn) undoBtn.addEventListener("click", undoLast);
-
+document.getElementById("undoBtn").addEventListener("click", undoLast);
 nextBtn.addEventListener("click", newOrder);
 repeatBtn.addEventListener("click", repeatOrder);
 submitBtn.addEventListener("click", submitOrder);
 showTranscriptCheckbox.addEventListener("change", updateBubbleText);
-if (recordBtn) recordBtn.addEventListener("click", startRecording);
-if (stopBtn) stopBtn.addEventListener("click", stopRecordingFunc);
-
-// Preload voices in some browsers
-if ("speechSynthesis" in window){
-  window.speechSynthesis.onvoiceschanged = () => {};
-}
+recordBtn.addEventListener("click", startRecording);
+stopBtn.addEventListener("click", stopRecordingFunc);
 </script>
 </body>
 </html>
