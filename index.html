@@ -1,2359 +1,1408 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
 <script>
-
 /* STATIC MODE (no server): force browser/system voice and prevent OpenAI TTS calls */
-
 window.__STATIC_MODE__ = true;
-
 </script>
 
-
-
   <meta charset="UTF-8">
-
   <title>Cashier English Trainer – v9 (NYC voices + your voice)</title>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <style>
-
     * {
-
       box-sizing: border-box;
-
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-
     }
-
     body {
-
       margin: 0;
-
       background: #1d4ed8;
-
       color: #111827;
-
       display: flex;
-
       justify-content: center;
-
       min-height: 100vh;
-
     }
-
     .app {
-
       width: 100%;
-
       max-width: 1150px;
-
       background: #e5e7eb;
-
       padding: 10px;
-
       display: flex;
-
       flex-direction: column;
-
       gap: 8px;
-
     }
-
     .top-bar {
-
       display: flex;
-
       justify-content: space-between;
-
       align-items: flex-start;
-
       gap: 8px;
-
       flex-wrap: wrap;
-
     }
-
     .title {
-
       font-size: 1rem;
-
       font-weight: 700;
-
     }
-
     .subtitle {
-
       font-size: 0.75rem;
-
       color: #374151;
-
       max-width: 480px;
-
     }
-
     .controls {
-
       display: flex;
-
       gap: 6px;
-
       flex-wrap: wrap;
-
       align-items: center;
-
       font-size: 0.8rem;
-
     }
-
     select, button, label.control {
-
       padding: 4px 6px;
-
       border-radius: 6px;
-
       border: none;
-
       font-size: 0.8rem;
-
       background: #f9fafb;
-
     }
-
     button {
-
       cursor: pointer;
-
       background: #2563eb;
-
       color: #f9fafb;
-
       font-weight: 600;
-
     }
-
     button.secondary {
-
       background: #6b7280;
-
       color: #f9fafb;
-
     }
-
     button:disabled {
-
       opacity: 0.6;
-
       cursor: default;
-
     }
-
-
 
     .layout {
-
       display: grid;
-
       grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.3fr);
-
       gap: 8px;
-
     }
-
     @media (max-width: 850px) {
-
       .layout {
-
         grid-template-columns: 1fr;
-
       }
-
     }
-
-
 
     .panel {
-
       background: #f9fafb;
-
       border-radius: 8px;
-
       padding: 8px;
-
       box-shadow: 0 1px 3px rgba(15,23,42,0.12);
-
     }
-
     .panel h2 {
-
       margin: 0 0 4px;
-
       font-size: 0.85rem;
-
       text-transform: uppercase;
-
       letter-spacing: 0.04em;
-
       color: #6b7280;
-
     }
-
     .panel .ru-hint {
-
       font-size: 0.7rem;
-
       color: #4b5563;
-
       margin-bottom: 4px;
-
     }
-
-
 
     /* LEFT COLUMN */
-
     .left-column {
-
       display: flex;
-
       flex-direction: column;
-
       gap: 8px;
-
     }
-
     .customer-panel {
-
       display: flex;
-
       gap: 8px;
-
       align-items: center;
-
     }
-
     .customer-photo {
-
       width: 80px;
-
       height: 80px;
-
       border-radius: 999px;
-
       overflow: hidden;
-
       flex-shrink: 0;
-
       background: #d1d5db;
-
     }
-
     .customer-photo img {
-
       width: 100%;
-
       height: 100%;
-
       object-fit: cover;
-
     }
-
     .customer-info {
-
       flex: 1;
-
       display: flex;
-
       flex-direction: column;
-
       gap: 4px;
-
     }
-
     .bubble {
-
       background: #eff6ff;
-
       border-radius: 10px;
-
       padding: 6px 8px;
-
       border: 1px solid #93c5fd;
-
       font-size: 0.85rem;
-
       min-height: 34px;
-
       word-break: break-word;
-
     }
-
     .bubble small {
-
       display: block;
-
       margin-top: 2px;
-
       color: #9ca3af;
-
       font-size: 0.7rem;
-
     }
-
     .customer-meta {
-
       font-size: 0.75rem;
-
       color: #6b7280;
-
     }
-
     .repeat-row {
-
       margin-top: 4px;
-
       display: flex;
-
       gap: 6px;
-
       flex-wrap: wrap;
-
       align-items: center;
-
       justify-content: flex-start;
-
     }
-
     .repeat-row button {
-
       padding-inline: 10px;
-
     }
-
-
 
     .recognized {
-
       margin-top: 6px;
-
       padding: 6px;
-
       border-radius: 6px;
-
       background: #f3f4f6;
-
       font-size: 0.8rem;
-
     }
-
     .recognized span.label {
-
       font-size: 0.7rem;
-
       color: #6b7280;
-
       display: block;
-
       margin-bottom: 2px;
-
     }
-
     .recognized .text {
-
       font-weight: 500;
-
     }
-
     .score-line {
-
       margin-top: 4px;
-
       font-size: 0.75rem;
-
     }
-
     .score-line strong.good { color: #15803d; }
-
     .score-line strong.bad { color: #b91c1c; }
 
-
-
     .bottom-left {
-
       display: grid;
-
       grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
-
       gap: 8px;
-
     }
-
     @media (max-width: 700px) {
-
       .bottom-left {
-
         grid-template-columns: 1fr;
-
       }
-
     }
-
-
 
     .receipt {
-
       font-size: 0.75rem;
-
       max-height: 150px;
-
       overflow-y: auto;
-
     }
-
     .receipt-line {
-
       display: flex;
-
       justify-content: space-between;
-
       gap: 8px;
-
       margin-bottom: 2px;
-
     }
-
     .receipt-total {
-
       border-top: 1px dashed #9ca3af;
-
       margin-top: 4px;
-
       padding-top: 4px;
-
       display: flex;
-
       justify-content: space-between;
-
       font-weight: 700;
-
       font-size: 0.8rem;
-
     }
-
     .feedback {
-
       margin-top: 4px;
-
       font-size: 0.75rem;
-
     }
-
     .feedback.correct {
-
       color: #15803d;
-
     }
-
     .feedback.wrong {
-
       color: #b91c1c;
-
     }
-
-
 
     .keypad {
-
       display: flex;
-
       flex-direction: column;
-
       gap: 4px;
-
     }
-
     .calc-display {
-
       padding: 4px 6px;
-
       background: #111827;
-
       color: #f9fafb;
-
       border-radius: 6px;
-
       font-size: 0.75rem;
-
       display: flex;
-
       justify-content: space-between;
-
       align-items: center;
-
     }
-
     .calc-grid {
-
       display: grid;
-
       grid-template-columns: repeat(3, 1fr);
-
       gap: 4px;
-
     }
-
     .calc-btn {
-
       padding: 8px;
-
       background: #e5e7eb;
-
       border-radius: 6px;
-
       text-align: center;
-
       cursor: pointer;
-
       border: 1px solid #d1d5db;
-
       font-size: 0.9rem;
-
       font-weight: 600;
-
       user-select: none;
-
     }
-
     .calc-btn.action {
-
       background: #10b981;
-
       color: #f9fafb;
-
       border-color: #059669;
-
       font-size: 0.75rem;
-
     }
-
     .calc-btn.clear {
-
       background: #f97373;
-
       color: #f9fafb;
-
       border-color: #ef4444;
-
       font-size: 0.75rem;
-
     }
-
     .calc-btn:active {
-
       transform: translateY(1px);
-
     }
-
-
 
     .hint {
-
       margin-top: 3px;
-
       font-size: 0.7rem;
-
       color: #6b7280;
-
     }
-
-
 
     /* RIGHT COLUMN: products */
-
     .products-grid {
-
       display: grid;
-
       grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-
       gap: 6px;
-
     }
-
     .product-card {
-
       background: #eef2ff;
-
       border-radius: 8px;
-
       padding: 4px;
-
       display: flex;
-
       flex-direction: column;
-
       gap: 3px;
-
       cursor: pointer;
-
       border: 2px solid transparent;
-
       transition: transform 0.08s ease, border-color 0.08s ease;
-
       font-size: 0.75rem;
-
       align-items: center;
-
       text-align: center;
-
     }
-
     .product-card:hover {
-
       transform: translateY(-1px);
-
       border-color: #6366f1;
-
     }
-
     .product-card.active {
-
       border-color: #2563eb;
-
       background: #e0ebff;
-
     }
-
     .product-photo {
-
       width: 70px;
-
       height: 70px;
-
       border-radius: 10px;
-
       background: linear-gradient(135deg, #fef3c7, #fee2e2);
-
       display: flex;
-
       align-items: center;
-
       justify-content: center;
-
       font-size: 2rem;
-
     }
-
     .product-name {
-
       font-weight: 700;
-
       font-size: 0.8rem;
-
     }
-
     .product-price {
-
       font-size: 0.7rem;
-
       color: #4b5563;
-
     }
-
-
 
     /* Footer */
-
     .footer-panel {
-
       margin-top: 2px;
-
       display: grid;
-
       grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.1fr);
-
       gap: 6px;
-
       font-size: 0.75rem;
-
     }
-
     @media (max-width: 800px) {
-
       .footer-panel {
-
         grid-template-columns: 1fr;
-
       }
-
     }
-
     .badge {
-
       display: inline-flex;
-
       align-items: center;
-
       gap: 4px;
-
       padding: 2px 6px;
-
       border-radius: 999px;
-
       background: #dbeafe;
-
       color: #1e40af;
-
       font-size: 0.7rem;
-
       font-weight: 600;
-
       margin-bottom: 4px;
-
     }
-
     .small-code {
-
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-
       font-size: 0.7rem;
-
       background: #111827;
-
       color: #e5e7eb;
-
       padding: 4px 6px;
-
       border-radius: 6px;
-
       overflow-x: auto;
-
       white-space: pre;
-
       margin-top: 4px;
-
     }
-
-
 
     
-
     .mini-btn{
-
       padding: 2px 6px;
-
       border-radius: 6px;
-
       border: 1px solid #d1d5db;
-
       background: #f3f4f6;
-
       color: #111827;
-
       font-weight: 800;
-
       line-height: 1;
-
       cursor: pointer;
-
       font-size: 0.85rem;
-
     }
-
     .mini-btn:active{ transform: translateY(1px); }
-
     .mini-btn.danger{
-
       background:#fee2e2;
-
       border-color:#fecaca;
-
       color:#991b1b;
-
     }
-
-
 
     audio#streetAudio {
-
       display: none;
-
     }
-
-
 
     /* === СТИЛИ ДЛЯ ЗАМКА === */
-
     #gatekeeper-overlay {
-
       position: fixed;
-
       top: 0;
-
       left: 0;
-
       width: 100%;
-
       height: 100%;
-
       background: #f0f2f5;
-
       z-index: 99999999;
-
       display: flex;
-
       flex-direction: column;
-
       align-items: center;
-
       justify-content: center;
-
       font-family: sans-serif;
-
     }
-
     .gatekeeper-card {
-
       background: white;
-
       padding: 40px;
-
       border-radius: 12px;
-
       box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-
       text-align: center;
-
       max-width: 400px;
-
       width: 90%;
-
     }
-
     .gatekeeper-input {
-
       width: 100%;
-
       padding: 12px;
-
       margin-bottom: 15px;
-
       border: 1px solid #ccc;
-
       border-radius: 6px;
-
       font-size: 16px;
-
       text-align: center;
-
       box-sizing: border-box;
-
     }
-
     .gatekeeper-button {
-
       width: 100%;
-
       padding: 12px;
-
       background: #000;
-
       color: white;
-
       border: none;
-
       border-radius: 6px;
-
       font-size: 16px;
-
       cursor: pointer;
-
       font-weight: bold;
-
     }
-
     .gatekeeper-link {
-
       display: block;
-
       width: 100%;
-
       padding: 12px;
-
       background: #fff;
-
       color: #007AFF;
-
       border: none;
-
       text-decoration: underline;
-
       font-weight: bold;
-
       box-sizing: border-box;
-
       margin-top: 10px;
-
       cursor: pointer;
-
     }
-
   </style>
-
 </head>
-
 <body>
 
-
-
 <div id="gatekeeper-overlay">
-
     <div class="gatekeeper-card">
-
         <h2 style="margin-top:0; color: #333;">🔒 Доступ закрыт</h2>
-
         <p style="color:#666; margin-bottom:20px; font-size: 14px;">
-
             Введите ключ доступа для Cashier English Trainer.
-
         </p>
-
         
-
         <input type="text" id="access-code" placeholder="EFI-..." class="gatekeeper-input">
-
         
-
         <a href="https://payhip.com/b/EJdPx" target="_blank" class="gatekeeper-link">
-
             Get the password
-
         </a>
-
-
 
         <div style="height: 15px;"></div>
 
-
-
         <button onclick="checkAccess()" class="gatekeeper-button">Войти</button>
-
     </div>
-
 </div>
-
-
 
 <div class="app">
-
   <div class="top-bar">
-
     <div>
-
       <div class="title">Cashier Trainer – English (NYC corner store) – v9</div>
-
       <div class="subtitle">
-
         Если по какой-либо причине приложение работает некорректно, пожалуйста, воспользуйтесь компьютером для входа.
-
       </div>
-
     </div>
-
     <div class="controls">
-
       <label class="control">
-
         Level:
-
         <select id="levelSelect">
-
           <option value="A1">A1 – Easy (1 item)</option>
-
           <option value="A2">A2 – Medium (1–2 items)</option>
-
           <option value="B1">B1 – Hard (2–3 items, corrections)</option>
-
         </select>
-
       </label>
-
 <label class="control">
-
         Speed:
-
         <select id="speedSelect">
-
           <option value="0.85">Slow</option>
-
           <option value="1.0" selected>Normal</option>
-
           <option value="1.15">Fast</option>
-
         </select>
-
       </label>
-
       <label class="control">
-
         <input type="checkbox" id="showTranscript" checked> Show text
-
       </label>
-
     </div>
-
   </div>
-
-
 
   <div class="layout">
-
     <div class="left-column">
-
       <div class="panel">
-
         <h2>Customer</h2>
-
         <div class="ru-hint">
-
           Нажимай <b>Next customer</b> → слушай заказ с разным голосом →
-
           <b>Repeat voice</b> (повтор речи покупателя) или <b>Record my voice</b> (повторяешь сам) →
-
           при хорошем совпадении (включая правильное количество) заказ попадёт в чек автоматически.
-
         </div>
-
         <div class="customer-panel">
-
           <div class="customer-photo"><img id="customerImg" src="" alt="Customer"></div>
-
           <div class="customer-info">
-
             <div class="bubble" id="bubble">
-
               Press “Next customer” to start.
-
               <small>First, use your ears. Then open the text if needed.</small>
-
             </div>
-
             <div class="customer-meta" id="customerMeta">Waiting for first customer.</div>
-
           </div>
-
         </div>
-
         <div class="repeat-row">
-
           <button id="repeatBtn" class="secondary">Repeat voice</button>
-
           <button id="recordBtn" class="secondary">Record my voice</button>
-
           <button id="stopBtn" class="secondary">Stop</button>
-
           <span id="recStatus" class="hint" style="display:none;color:#b91c1c;font-weight:600;">Listening…</span>
-
           <span class="hint">Replay или запиши свой голос. При хорошем совпадении заказ добавится в чек автоматически.</span>
-
         </div>
-
         <div class="recognized" id="recognizedBox" style="display:none;">
-
           <span class="label">Recognition result (то, что услышал браузер):</span>
-
           <div class="text" id="recognizedText">—</div>
-
           <div class="score-line" id="scoreLine"></div>
-
         </div>
-
       </div>
-
-
 
       <div class="bottom-left">
-
         <div class="panel">
-
           <h2>Receipt</h2>
-
           <div class="ru-hint">
-
             Можно собирать чек руками (как в v8) или дать системе заполнить его по твоему голосу.
-
           </div>
-
           <div class="receipt" id="receipt"></div>
-
           <div class="receipt-total" id="receiptTotal">
-
             <span>Total</span>
-
             <span>$0.00</span>
-
           </div>
-
           <button id="submitBtn" style="width:100%;margin-top:4px;font-size:0.8rem;">Submit order</button>
-
           <button id="nextBtn" style="width:100%;margin-top:4px;font-size:0.8rem;">Next customer</button>
-
           <div class="feedback" id="feedback"></div>
-
 <div id="undoBar" style="display:none;margin-top:6px;padding:6px;border-radius:8px;background:#fffbeb;border:1px solid #f59e0b;font-size:0.75rem;display:flex;align-items:center;justify-content:space-between;gap:8px;"><span id="undoText">Added item.</span><button id="undoBtn" class="secondary" style="padding:4px 10px;">Undo</button></div>
-
         </div>
-
-
 
         <div class="panel keypad">
-
           <h2>Keypad</h2>
-
           <div class="ru-hint">
-
             Можно сначала количество, потом товар, или наоборот: товар → количество → OK.
-
           </div>
-
           <div class="calc-display">
-
             <span id="pendingInfo">Product: —</span>
-
             <strong id="currentQty">Qty: 1</strong>
-
           </div>
-
           <div class="calc-grid">
-
             <div class="calc-btn">1</div>
-
             <div class="calc-btn">2</div>
-
             <div class="calc-btn">3</div>
-
             <div class="calc-btn">4</div>
-
             <div class="calc-btn">5</div>
-
             <div class="calc-btn">6</div>
-
             <div class="calc-btn">7</div>
-
             <div class="calc-btn">8</div>
-
             <div class="calc-btn">9</div>
-
             <div class="calc-btn clear">C</div>
-
             <div class="calc-btn">0</div>
-
             <div class="calc-btn action">OK</div>
-
           </div>
-
           <div class="hint">C очищает выбор (сбрасывает количество и снимает выбранный товар). OK добавляет текущий товар + количество в чек.</div>
-
         </div>
-
       </div>
-
     </div>
-
-
 
     <div class="panel">
-
       <h2>Products</h2>
-
       <div class="ru-hint">
-
         На слух ловишь: “three apples”, “two bottles of milk”, “one pack of cigarettes”… и подбираешь чек.
-
       </div>
-
       <div class="products-grid" id="productsGrid"></div>
-
       <div class="hint">NYC corner store items with realistic prices.</div>
-
     </div>
-
   </div>
-
-
 
   <div class="footer-panel panel">
-
     <div>
-
       <div class="badge">Listening strategy</div>
-
       <ul style="margin:4px 0 0 16px;padding:0;font-size:0.72rem;">
-
         <li>Начни с <b>A1</b>: один товар, простые фразы.</li>
-
         <li>Сначала слушай 2–3 раза без текста, только уши.</li>
-
         <li>Сфокусируйся сначала на числе (three / two / four), потом на товаре.</li>
-
         <li>Если совсем потерялся – включи <b>Show text</b> как подсказку.</li>
-
       </ul>
-
-      <div class="badge" style="margin-top:6px;">Background noise</div>
-
-      <div style="font-size:0.72rem;">
-
-        Тихий звук улицы грузится из <code>street_ambience.wav</code> в той же папке. Можно заменить на реальный звук Нью-Йорка.
-
-      </div>
-
     </div>
-
-    <div>
-
-      <div class="badge">Voice mapping</div>
-
-      <div style="font-size:0.72rem;">
-
-        Каждый клиент имеет <b>gender</b> (male / female) и <b>style</b> (calm / fast).<br>
-
-        При режиме <b>OpenAI TTS API</b> на сервер отправляется text + rate + gender + style, и сервер выбирает голос.<br>
-
-        При режиме <b>Browser voice</b> используется встроенный голос браузера.
-
-      </div>
-
-      <div class="small-code">
-
-// пример запроса на сервер для OpenAI TTS
-
-POST /api/tts
-
-{ "text": "...", "rate": 1.0, "gender": "female", "style": "fast" }
-
-      </div>
-
-      <div style="font-size:0.7rem;margin-top:4px;">
-
-        Картинки клиентов лежат в папке <code>customers/</code>: <br>
-
-        <code>male_1.jpg, male_2.jpg, male_3.jpg, female_1.jpg, female_2.jpg, female_3.jpg</code>
-
-      </div>
-
-    </div>
-
   </div>
-
 </div>
-
-
 
 <audio id="streetAudio" src="street_ambience.wav" loop></audio>
 
-
-
 <script>
-
 // === ЛОГИКА ЗАМКА ===
-
 const SECRET_CODE = "EFI-2026-Al!KZ6?592<";
-
 const overlay = document.getElementById('gatekeeper-overlay');
-
 const accessInput = document.getElementById('access-code');
 
-
-
 // Проверка: вводил ли пользователь код раньше?
-
 if (localStorage.getItem('is_paid_cashier_v2') === 'true') {
-
     overlay.style.display = 'none';
-
 }
-
-
 
 function checkAccess() {
-
     let code = accessInput.value.trim();
-
     // Защита от частых ошибок при копировании (тире и русские буквы)
-
     code = code.replace(/—/g, '-').replace(/–/g, '-');
-
     const map = {'А':'A', 'В':'B', 'Е':'E', 'К':'K', 'М':'M', 'Н':'H', 'О':'O', 'Р':'P', 'С':'C', 'Т':'T', 'Х':'X'};
-
     code = code.replace(/[АВЕКМНОРСТХ]/g, (m) => map[m]);
 
-
-
     if (code === SECRET_CODE) {
-
         localStorage.setItem('is_paid_cashier_v2', 'true');
-
         overlay.style.display = 'none';
-
         alert("Доступ открыт!");
-
     } else {
-
         alert("Неверный код!");
-
         accessInput.value = '';
-
     }
-
 }
 
-
-
 // ---- LOCAL CUSTOMER PHOTOS ----
-
 const customers = [
-
   { id: "m1", img: "customers/male_1.jpg",   gender: "male",   style: "calm",  label: "Calm guy" },
-
   { id: "m2", img: "customers/male_2.jpg",   gender: "male",   style: "fast",  label: "Fast-talking guy" },
-
   { id: "m3", img: "customers/male_3.jpg",   gender: "male",   style: "calm",  label: "Polite man" },
-
   { id: "f1", img: "customers/female_1.jpg", gender: "female", style: "fast",  label: "Busy woman" },
-
   { id: "f2", img: "customers/female_2.jpg", gender: "female", style: "calm",  label: "Friendly woman" },
-
   { id: "f3", img: "customers/female_3.jpg", gender: "female", style: "calm",  label: "Chill girl" }
-
 ];
-
-
 
 // ---- PRODUCTS ----
-
 const products = [
-
   { id: 'apple',      name: 'Apple',      price: 1.20, unit: 'each',   icon: '🍎' },
-
   { id: 'milk',       name: 'Milk',       price: 2.50, unit: 'bottle', icon: '🥛' },
-
   { id: 'bread',      name: 'Bread',      price: 2.50, unit: 'loaf',   icon: '🍞' },
-
   { id: 'sugar',      name: 'Sugar',      price: 2.00, unit: 'bag',    icon: '🧂' },
-
   { id: 'bananas',    name: 'Bananas',    price: 0.60, unit: 'each',   icon: '🍌' },
-
   { id: 'cigarettes', name: 'Cigarettes', price: 14.00,unit: 'pack',   icon: '🚬' },
-
   { id: 'water',      name: 'Water',      price: 1.50, unit: 'bottle', icon: '💧' },
-
   { id: 'soda',       name: 'Soda',       price: 2.00, unit: 'can',    icon: '🥤' },
-
   { id: 'chips',      name: 'Chips',      price: 3.00, unit: 'bag',    icon: '🍟' },
-
   { id: 'beer',       name: 'Beer',       price: 5.50, unit: 'bottle', icon: '🍺' },
-
   { id: 'rice',       name: 'Rice',       price: 4.50, unit: 'bag',    icon: '🍚' }
-
 ];
-
-
 
 // ---- NYC-STYLE ORDERS ----
-
 const orders = {
-
   A1: [
-
     { text: "Hey, can I grab three apples, please?", items: [{id:'apple', qty:3}] },
-
     { text: "Good morning, let me get two bottles of milk.", items: [{id:'milk', qty:2}] },
-
     { text: "Hi, just one loaf of bread, thanks.", items: [{id:'bread', qty:1}] },
-
     { text: "Yo, can I get four bananas?", items: [{id:'bananas', qty:4}] },
-
     { text: "Can I get one pack of cigarettes, please?", items: [{id:'cigarettes', qty:1}] },
-
     { text: "I'll take three bottles of water.", items: [{id:'water', qty:3}] },
-
     { text: "Could you give me one bag of sugar?", items: [{id:'sugar', qty:1}] },
-
     { text: "Hi, can I get five apples?", items: [{id:'apple', qty:5}] },
-
     { text: "I'd like two cans of soda, please.", items: [{id:'soda', qty:2}] },
-
     { text: "Can I have one bag of rice?", items: [{id:'rice', qty:1}] }
-
   ],
-
   A2: [
-
     { text: "Hey, can I grab two apples and one bottle of milk?", items: [{id:'apple', qty:2},{id:'milk',qty:1}] },
-
     { text: "Hi, I’d like three bananas and one loaf of bread.", items: [{id:'bananas',qty:3},{id:'bread',qty:1}] },
-
     { text: "Can I have two cans of soda and one bag of chips?", items: [{id:'soda',qty:2},{id:'chips',qty:1}] },
-
     { text: "I'll take one bottle of water and one loaf of bread.", items: [{id:'water',qty:1},{id:'bread',qty:1}] },
-
     { text: "Can you give me one bag of rice and one bag of sugar?", items: [{id:'rice',qty:1},{id:'sugar',qty:1}] },
-
     { text: "Hi, two bottles of beer and one bag of chips, please.", items: [{id:'beer',qty:2},{id:'chips',qty:1}] },
-
     { text: "I'd like one bottle of milk and one loaf of bread.", items: [{id:'milk',qty:1},{id:'bread',qty:1}] },
-
     { text: "Can I get two apples and two bananas?", items: [{id:'apple',qty:2},{id:'bananas',qty:2}] },
-
     { text: "Just one can of soda and one bag of chips, thanks.", items: [{id:'soda',qty:1},{id:'chips',qty:1}] },
-
     { text: "I'll take one bottle of beer and one bottle of water.", items: [{id:'beer',qty:1},{id:'water',qty:1}] }
-
   ],
-
   B1: [
-
     { text: "Hey, can I get one apple, one banana, and actually skip the orange?", items:[{id:'apple',qty:1},{id:'bananas',qty:1}] },
-
     { text: "Let me have two bottles of water, one soda, and a bag of chips—actually, no soda.", items:[{id:'water',qty:2},{id:'chips',qty:1}] },
-
     { text: "I'll grab one loaf of bread, some butter, and a bag of sugar—actually, forget the butter.", items:[{id:'bread',qty:1},{id:'sugar',qty:1}] },
-
     { text: "Three bananas, two apples, and one bag of rice—actually, just the rice is fine.", items:[{id:'rice',qty:1}] },
-
     { text: "Hi, can I get one bottle of milk, one can of soda, and a bag of chips?", items:[{id:'milk',qty:1},{id:'soda',qty:1},{id:'chips',qty:1}] },
-
     { text: "I'll take two beers, one bottle of water, and a bag of chips, please.", items:[{id:'beer',qty:2},{id:'water',qty:1},{id:'chips',qty:1}] },
-
     { text: "Can I get one bag of rice, one loaf of bread, and two bottles of water?", items:[{id:'rice',qty:1},{id:'bread',qty:1},{id:'water',qty:2}] },
-
     { text: "I'd like one bottle of milk, two cans of soda, and one beer.", items:[{id:'milk',qty:1},{id:'soda',qty:2},{id:'beer',qty:1}] },
-
     { text: "Could I have two apples, three bananas, and one bottle of water?", items:[{id:'apple',qty:2},{id:'bananas',qty:3},{id:'water',qty:1}] },
-
     { text: "One loaf of bread, one bag of sugar, and one bottle of milk, thanks.", items:[{id:'bread',qty:1},{id:'sugar',qty:1},{id:'milk',qty:1}] }
-
   ]
-
 };
 
-
-
 const thanksPhrases = [
-
   "Thanks a lot, have a good one.",
-
   "Thank you, have a nice day.",
-
   "Appreciate it, thanks.",
-
   "Thanks, you’re all set.",
-
   "Thank you so much.",
-
   "Awesome, thanks.",
-
   "Thanks, that’s perfect.",
-
   "Thanks, see you next time.",
-
   "Cool, thank you.",
-
   "Thanks, take care."
-
 ];
 
-
-
 // ---- STATE ----
-
 let basket = [];
-
 let currentOrder = null;
-
 let currentCustomer = null;
 
-
-
 let pendingProductId = null;
-
 let qtyBuffer = "";
-
 let qtyValue = 1;
 
-
-
 const productsGrid = document.getElementById("productsGrid");
-
 const receiptEl = document.getElementById("receipt");
-
 const receiptTotalEl = document.getElementById("receiptTotal").lastElementChild;
-
 const feedbackEl = document.getElementById("feedback");
-
 const bubbleEl = document.getElementById("bubble");
-
 const customerMetaEl = document.getElementById("customerMeta");
-
 const levelSelect = document.getElementById("levelSelect");
-
 const nextBtn = document.getElementById("nextBtn");
-
 const repeatBtn = document.getElementById("repeatBtn");
-
 const submitBtn = document.getElementById("submitBtn");
-
 const currentQtyEl = document.getElementById("currentQty");
-
 const pendingInfoEl = document.getElementById("pendingInfo");
-
 const customerImgEl = document.getElementById("customerImg");
-
 const speedSelect = document.getElementById("speedSelect");
-
 const showTranscriptCheckbox = document.getElementById("showTranscript");
-
 const voiceEngineSelect = document.getElementById("voiceEngine"); // may be null if UI hidden
-
 const recordBtn = document.getElementById("recordBtn");
-
 const stopBtn = document.getElementById("stopBtn");
-
 const recStatusEl = document.getElementById("recStatus");
-
 const recognizedBox = document.getElementById("recognizedBox");
-
 const recognizedTextEl = document.getElementById("recognizedText");
-
 const scoreLineEl = document.getElementById("scoreLine");
 
-
-
 let lastOrderText = "";
-
 let bgAudioStarted = false;
-
 let recognition = null;
-
 let isRecording = false;
 
-
-
 let lastAction = null; // snapshot of basket before last change
-
 let undoTimer = null;
-
-
 
 function cloneBasket(b){ return b.map(x => ({id:x.id, qty:x.qty})); }
 
-
-
 function showUndo(message){
-
   const bar = document.getElementById("undoBar");
-
   const txt = document.getElementById("undoText");
-
   if (!bar || !txt) return;
-
   txt.textContent = message;
-
   bar.style.display = "flex";
-
   clearTimeout(undoTimer);
-
   undoTimer = setTimeout(() => { bar.style.display = "none"; }, 4500);
-
 }
-
-
 
 function hideUndo(){
-
   const bar = document.getElementById("undoBar");
-
   if (bar) bar.style.display = "none";
-
 }
-
-
 
 function setLastAction(snapshot, message){
-
   lastAction = { snapshot };
-
   showUndo(message);
-
 }
-
-
 
 function undoLast(){
-
   if (!lastAction) return;
-
   basket = cloneBasket(lastAction.snapshot);
-
   renderBasket();
-
   updatePendingDisplay();
-
   hideUndo();
-
   lastAction = null;
-
 }
-
-
 
 // --- similarity helpers for speech result vs original text ---
-
 function tokenize(str) {
-
   return str.toLowerCase()
-
     .replace(/[^a-z0-9\s]/g, " ")
-
     .split(/\s+/)
-
     .filter(Boolean);
-
 }
-
-
 
 const stopWords = new Set(["hey","hi","yo","can","i","get","let","me","just","please","thanks","thank","you",
-
   "actually","and","the","a","to","of","one","two","three","four","five","six","seven","eight","nine","ten",
-
   "morning","good","lot","so","much","bag","bottle","bottles","pack","loaf","some","grab","have","take","like"]);
 
-
-
 // ---- number parsing (for voice validation) ----
-
 const numberWords = {
-
   "zero":0,"one":1,"two":2,"three":3,"four":4,"five":5,"six":6,"seven":7,"eight":8,"nine":9,"ten":10,
-
   "eleven":11,"twelve":12,"thirteen":13,"fourteen":14,"fifteen":15,"sixteen":16,"seventeen":17,"eighteen":18,"nineteen":19,
-
   "twenty":20
-
 };
-
 function parseNumberToken(tok){
-
   tok = tok.toLowerCase();
-
   if (tok in numberWords) return numberWords[tok];
-
   if (/^\d+$/.test(tok)) return parseInt(tok,10);
-
   if (tok === "a" || tok === "an") return 1;
-
   return null;
-
 }
-
-
 
 // Map productId to keywords/phrases the recognizer might output (lenient, NYC-style)
-
 const productKeywords = {
-
   "apple":      ["apple","apples"],
-
   "bananas":    ["banana","bananas"],
-
   "milk":       ["milk"],
-
   "bread":      ["bread","loaf","loaves"], // accept "one bread", "a loaf (of) bread", etc.
-
   "sugar":      ["sugar"],
-
   "water":      ["water","water bottle"],
-
   "soda":       ["soda","sodas","pop"],
-
   "chips":      ["chips","chip"],
-
   "beer":       ["beer","beers"],
-
   "cigarettes": ["cigarette","cigarettes","cigs"]
-
 };
-
-
 
 // Also support common multi-word phrases (checked against raw lowercased transcript)
-
 const productPhrases = {
-
   "bread": ["loaf of bread", "a loaf of bread", "bread"],
-
   "water": ["bottle of water", "a bottle of water", "water bottle", "water"],
-
   "milk":  ["a gallon of milk", "gallon of milk", "milk"],
-
   "cigarettes": ["pack of cigarettes", "a pack of cigarettes", "cigs", "cigarettes"]
-
 };
 
-
-
 // Extract a *meaning* map from speech: which products were mentioned + (optional) qty.
-
 // qty=null means "user mentioned the product but we couldn't reliably hear a number".
-
 function extractSpokenOrder(text){
-
   const raw = (text || "").toLowerCase();
-
   const toks = tokenize(text); // lower + punctuation removed
-
   const result = {}; // {productId: {qty:number|null, mentioned:true}}
 
-
-
   function mark(pid, qty){
-
     if (!result[pid]) result[pid] = { qty: null, mentioned: true };
-
     // If we detect a number for the same product, prefer the last detected number
-
     if (typeof qty === "number") result[pid].qty = qty;
-
   }
-
-
 
   // Phrase pass (more robust when SpeechRecognition returns multi-word chunks)
-
   for (const [pid, phrases] of Object.entries(productPhrases)){
-
     for (const ph of phrases){
-
       if (raw.includes(ph)){
-
         mark(pid, null);
-
         break;
-
       }
-
     }
-
   }
-
-
 
   // Token pass: find product keywords and look back for a number within 4 tokens.
-
   for (let i=0;i<toks.length;i++){
-
     for (const [pid, keys] of Object.entries(productKeywords)){
-
       if (!keys.includes(toks[i])) continue;
 
-
-
       let qty = null;
-
       for (let back=1; back<=4; back++){
-
         const j = i-back;
-
         if (j < 0) break;
-
         const n = parseNumberToken(toks[j]);
-
         if (n !== null){
-
           qty = n;
-
           break;
-
         }
-
       }
-
       mark(pid, qty);
-
     }
-
   }
-
-
 
   return result; // {pid:{qty,mentioned}}
-
 }
-
-
 
 function expectedOrderMap(order){
-
   const m = {};
-
   (order.items || []).forEach(it => { m[it.id] = (m[it.id] || 0) + it.qty; });
-
   return m;
-
 }
-
-
 
 function sameProducts(expectedMap, spokenMap){
-
   const expKeys = Object.keys(expectedMap).sort();
-
   const spkKeys = Object.keys(spokenMap).sort();
-
   if (expKeys.length !== spkKeys.length) return false;
-
   for (let i=0;i<expKeys.length;i++){
-
     if (expKeys[i] !== spkKeys[i]) return false;
-
   }
-
   return true;
-
 }
-
-
 
 function filterImportant(tokens) {
-
   return tokens.filter(t => !stopWords.has(t));
-
 }
-
-
 
 function calcSimilarity(reference, spoken) {
-
   const refTokens = filterImportant(tokenize(reference));
-
   const spokenTokens = filterImportant(tokenize(spoken));
-
   if (!refTokens.length) return 0;
-
   const spokenSet = new Set(spokenTokens);
-
   let common = 0;
-
   refTokens.forEach(t => {
-
     if (spokenSet.has(t)) common++;
-
   });
-
   return common / refTokens.length;
-
 }
 
-
-
 function initRecognition() {
-
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-
   if (!SR) {
-
     feedbackEl.textContent = "SpeechRecognition API не поддерживается в этом браузере. Попробуй Chrome или Edge на десктопе.";
-
     feedbackEl.className = "feedback wrong";
-
     if (recordBtn) recordBtn.disabled = true;
-
     if (stopBtn) stopBtn.disabled = true;
-
     return;
-
   }
-
   recognition = new SR();
-
   recognition.lang = "en-US";
-
   recognition.interimResults = false;
-
   recognition.maxAlternatives = 1;
 
-
-
   recognition.onstart = () => {
-
     isRecording = true;
-
     if (recStatusEl) recStatusEl.style.display = "inline";
-
   };
-
   recognition.onerror = (e) => {
-
     isRecording = false;
-
     if (recStatusEl) recStatusEl.style.display = "none";
-
     feedbackEl.textContent = "Ошибка распознавания: " + e.error;
-
     feedbackEl.className = "feedback wrong";
-
   };
-
   recognition.onend = () => {
-
     isRecording = false;
-
     if (recStatusEl) recStatusEl.style.display = "none";
-
   };
-
   recognition.onresult = (e) => {
-
     const text = e.results[0][0].transcript;
-
     if (recognizedBox) recognizedBox.style.display = "block";
-
     if (recognizedTextEl) recognizedTextEl.textContent = text;
-
     if (!currentOrder || !lastOrderText) {
-
       if (scoreLineEl) scoreLineEl.textContent = "Нет активного заказа (нажми Next customer).";
-
       return;
-
     }
-
     const score = calcSimilarity(lastOrderText, text);
-
     const percent = Math.round(score * 100);
 
-
-
     // Validation (lenient meaning): user does NOT need a perfect sentence.
-
 // Goal: understand intended items; quantities are strict only when we *clearly* heard a number.
-
 // If qty is not confidently heard, we still accept when products match.
-
     const spokenMap = extractSpokenOrder(text);
-
     const expectedMap = expectedOrderMap(currentOrder);
 
-
-
     const expectedKeys = Object.keys(expectedMap);
-
     const spokenKeys = Object.keys(spokenMap);
 
-
-
     const productsMatch = expectedKeys.every(k => spokenMap[k]?.mentioned);
-
     const noExtraProducts = spokenKeys.every(k => expectedMap[k] !== undefined); // prevent random extra items
-
     const qtyOk = productsMatch && expectedKeys.every(k => {
-
       const heard = spokenMap[k]?.qty;
-
       if (heard === null || heard === undefined) return true; // couldn't hear number → accept
-
       return heard === expectedMap[k]; // heard a number → must match
-
     });
-
-
 
     const meaningOk = productsMatch && noExtraProducts && qtyOk;
 
-
-
     // Lower similarity threshold to allow natural/NYC phrasing like "one bread", "gimme water", etc.
-
     if (score >= 0.45 && meaningOk){
-
       if (scoreLineEl) scoreLineEl.innerHTML = 'Score: <strong class="good">' + percent + '%</strong> – close enough. Meaning understood. Order added.';
-
       basket = currentOrder.items.map(it => ({ id: it.id, qty: it.qty }));
-
       renderBasket();
-
       feedbackEl.textContent = "Good: I understood the items. (Your sentence doesn’t have to be perfect.) Order was auto-filled.";
-
       feedbackEl.className = "feedback correct";
-
       const phrase = randomThanks();
-
       lastOrderText = phrase;
-
       updateBubbleText();
-
       speak(phrase, currentCustomer);
-
     } else {
-
       // Helpful feedback (lenient matching)
-
       if (!productsMatch) {
-
         if (scoreLineEl) scoreLineEl.innerHTML = 'Score: <strong class="bad">' + percent + '%</strong> – I didn\'t catch the items.';
-
         feedbackEl.innerHTML =
-
           "Try again. You don’t need a perfect sentence — just say the items clearly.<br>" +
-
           "<strong>Examples:</strong> <em>one bread</em>, <em>a loaf of bread</em>, <em>one bottle of water</em>, <em>water</em>.";
-
         feedbackEl.className = "feedback wrong";
-
         return;
-
       }
-
-
 
       if (!noExtraProducts) {
-
         const extra = spokenKeys.filter(k => expectedMap[k] === undefined)
-
           .map(id => (products.find(pr => pr.id === id)?.name || id))
-
           .join(", ");
-
         if (scoreLineEl) scoreLineEl.innerHTML = 'Score: <strong class="bad">' + percent + '%</strong> – extra item heard.';
-
         feedbackEl.innerHTML = "I heard an extra item: <strong>" + extra + "</strong>. Try again and say only what the customer asked for.";
-
         feedbackEl.className = "feedback wrong";
-
         return;
-
       }
-
-
 
       // Quantity mismatch only when we clearly heard a number that differs.
-
       const mismatches = expectedKeys.filter(k => {
-
         const heard = spokenMap[k]?.qty;
-
         return (heard !== null && heard !== undefined && heard !== expectedMap[k]);
-
       });
 
-
-
       if (mismatches.length) {
-
         const expStr = mismatches.map(id => {
-
           const p = products.find(pr => pr.id === id);
-
           return expectedMap[id] + " × " + (p ? p.name : id);
-
         }).join(", ");
-
-
 
         const heardStr = mismatches.map(id => {
-
           const p = products.find(pr => pr.id === id);
-
           const heard = spokenMap[id]?.qty;
-
           return heard + " × " + (p ? p.name : id);
-
         }).join(", ");
 
-
-
         if (scoreLineEl) scoreLineEl.innerHTML = 'Score: <strong class="bad">' + percent + '%</strong> – quantity mismatch.';
-
         feedbackEl.innerHTML = "Wrong quantity. Expected: <strong>" + expStr + "</strong>. I heard: <strong>" + heardStr + "</strong>. Try again.";
-
         feedbackEl.className = "feedback wrong";
-
         return;
-
       }
 
-
-
       if (scoreLineEl) scoreLineEl.innerHTML = 'Score: <strong class="bad">' + percent + '%</strong> – not close enough.';
-
       feedbackEl.textContent = "Try again: speak a little slower and clearly say the items (number + product).";
-
       feedbackEl.className = "feedback wrong";
-
     }
-
   };
-
 }
-
-
 
 function startRecording() {
-
   if (!recognition || isRecording) return;
-
   try { recognition.start(); } catch(e) {}
-
 }
-
-
 
 function stopRecordingFunc() {
-
   if (!recognition || !isRecording) return;
-
   recognition.stop();
-
 }
-
-
 
 // ---- RENDER PRODUCTS ----
-
 function renderProducts(){
-
   productsGrid.innerHTML = "";
-
   products.forEach(p => {
-
     const div = document.createElement("div");
-
     div.className = "product-card";
-
     div.dataset.id = p.id;
-
     div.innerHTML = `
-
       <div class="product-photo">${p.icon}</div>
-
       <div class="product-name">${p.name}</div>
-
       <div class="product-price">$${p.price.toFixed(2)} / ${p.unit}</div>
-
     `;
-
     div.addEventListener("click", () => selectProduct(p.id));
-
     productsGrid.appendChild(div);
-
   });
-
 }
-
-
 
 function updatePendingDisplay(){
-
   const product = pendingProductId ? products.find(p => p.id === pendingProductId) : null;
-
   pendingInfoEl.textContent = "Product: " + (product ? product.name : "—");
-
   currentQtyEl.textContent = "Qty: " + (qtyValue || 1);
-
   document.querySelectorAll(".product-card").forEach(card => {
-
     card.classList.toggle("active", card.dataset.id === pendingProductId);
-
   });
-
 }
-
-
 
 function selectProduct(id){
-
   pendingProductId = id;
-
   if (!qtyBuffer && qtyValue < 1) qtyValue = 1;
-
   updatePendingDisplay();
-
 }
-
-
 
 function addPendingToBasket(){
-
   if (!pendingProductId){
-
     feedbackEl.textContent = "Pick a product first (right side). Then set quantity and press OK.";
-
     feedbackEl.className = "feedback wrong";
-
     return;
-
   }
-
-
 
   const before = cloneBasket(basket);
-
   const productId = pendingProductId;
-
   const qty = qtyValue > 0 ? qtyValue : 1;
-
   const existing = basket.find(i => i.id === productId);
-
   if (existing){
-
     existing.qty += qty;
-
   } else {
-
     basket.push({id: productId, qty});
-
   }
-
-
 
   qtyBuffer = "";
-
   qtyValue = 1;
-
   renderBasket();
-
   updatePendingDisplay();
 
-
-
   const p = products.find(x => x.id === productId);
-
   setLastAction(before, `Added ${qty} × ${p ? p.name : productId}. Undo?`);
-
   feedbackEl.textContent = "";
-
   feedbackEl.className = "feedback";
-
 }
-
-
 
 function renderBasket(){
-
   receiptEl.innerHTML = "";
-
   let total = 0;
 
-
-
   if (!basket.length){
-
     const empty = document.createElement("div");
-
     empty.style.color = "#6b7280";
-
     empty.style.fontSize = "0.75rem";
-
     empty.textContent = "Cart is empty.";
-
     receiptEl.appendChild(empty);
-
   }
 
-
-
   basket.forEach((item, idx) => {
-
     const product = products.find(p => p.id === item.id);
-
     if (!product) return;
 
-
-
     const lineTotal = product.price * item.qty;
-
     total += lineTotal;
 
-
-
     const line = document.createElement("div");
-
     line.className = "receipt-line";
-
     line.style.alignItems = "center";
 
-
-
     line.innerHTML = `
-
       <span style="display:flex;gap:6px;align-items:center;min-width:0;flex:1;">
-
         <strong style="min-width:54px;">${item.qty} x</strong>
-
         <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${product.name}</span>
-
       </span>
-
-
 
       <span style="display:flex;gap:4px;align-items:center;flex-shrink:0;">
-
         <button class="mini-btn" data-act="minus" data-id="${product.id}" title="Minus 1">−</button>
-
         <button class="mini-btn" data-act="plus"  data-id="${product.id}" title="Plus 1">+</button>
-
         <button class="mini-btn danger" data-act="remove" data-id="${product.id}" title="Remove item">✕</button>
-
         <span style="min-width:70px;text-align:right;">$${lineTotal.toFixed(2)}</span>
-
       </span>
-
     `;
 
-
-
     receiptEl.appendChild(line);
-
   });
 
-
-
   receiptTotalEl.textContent = "$" + total.toFixed(2);
-
 }
-
-
 
 function randomCustomer(){
-
   return customers[Math.floor(Math.random() * customers.length)];
-
 }
-
-
 
 function randomMeta(level){
-
   const levelText = {
-
     A1:"Easy order • NYC corner store",
-
     A2:"Medium order • NYC corner store",
-
     B1:"Hard order + corrections • NYC corner store"
-
   };
-
   return levelText[level];
-
 }
 
-
-
 function updateBubbleText(){
+  if (!currentOrder && !lastOrderText){
+    bubbleEl.innerHTML = 'Press “Next customer” to start.<small>First listen, then open the text.</small>';
+    return;
+  }
+  if (showTranscriptCheckbox.checked){
+    bubbleEl.innerHTML = lastOrderText + '<small>Listen first, then read.</small>';
+  } else {
+    bubbleEl.innerHTML = 'Transcript hidden.<small>Use your ears – listening only mode.</small>';
+  }
+}
+
+// ---- VOICE HANDLING ----
+function guessVoiceByGender(voices, gender){
+  if (!voices || !voices.length) return null;
+  const enVoices = voices.filter(v => v.lang && v.lang.startsWith("en"));
+  if (!enVoices.length) return voices[0];
+
+  const femaleNames = ["samantha","karen","victoria","zoe","emma","olivia","susan","anna","serena","ava","alloy","nova","shimmer","fable"];
+  const maleNames   = ["daniel","david","michael","alex","fred","george","mark","john","paul","onyx","echo","sage","verse","ballad"];
+
+  if (gender === "female"){
+    let v = enVoices.find(v => femaleNames.some(n => v.name.toLowerCase().includes(n)));
+    if (v) return v;
+  } else if (gender === "male"){
+    let v = enVoices.find(v => maleNames.some(n => v.name.toLowerCase().includes(n)));
+    if (v) return v;
+  }
+  return enVoices[0];
+}
+
+function speakSystem(text, gender, style){
+  if (!("speechSynthesis" in window)) return;
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = "en-US";
+  const voices = window.speechSynthesis.getVoices();
+  if (voices.length){
+    const match = guessVoiceByGender(voices, gender);
+    if (match) utter.voice = match;
+  }
+  const baseRate = parseFloat(speedSelect.value) || 1.0;
+  let styleMult = 1.0;
+  if (style === "calm") styleMult = 0.9;
+  if (style === "fast") styleMult = 1.15;
+  utter.rate = baseRate * styleMult;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+async function speakOpenAI(text, gender, style){
+  try {
+    const baseRate = parseFloat(speedSelect.value) || 1.0;
+    let styleMult = 1.0;
+    if (style === "calm") styleMult = 0.9;
+    if (style === "fast") styleMult = 1.15;
+    const rate = baseRate * styleMult;
+
+    const res = await fetch("/api/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, rate, gender: gender || null, style: style || null })
+    });
+    if (!res.ok) throw new Error("TTS HTTP error " + res.status);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    audio.play();
+  } catch (err){
+    console.error("OpenAI TTS failed, falling back to system voice:", err);
+    speakSystem(text, gender, style);
+  }
+}
+
+function speak(text, opts){
+  const engine = voiceEngineSelect ? voiceEngineSelect.value : "system";
+  const gender = opts && opts.gender ? opts.gender : null;
+  const style  = opts && opts.style  ? opts.style  : null;
+  if (engine === "openai"){
+    speakOpenAI(text, gender, style);
+  } else {
+    speakSystem(text, gender, style);
+  }
+}
+
+// ---- BG NOISE ----
+function startBackgroundNoise(){
+  if (bgAudioStarted) return;
+  bgAudioStarted = true;
+  const audioEl = document.getElementById("streetAudio");
+  if (audioEl){
+    audioEl.volume = 0.08;
+    audioEl.play().catch(() => {});
+  }
+}
+
+// ---- ORDERS ----
+function newOrder(){
+  const level = levelSelect.value;
+  const list = orders[level];
+  currentOrder = list[Math.floor(Math.random() * list.length)];
+  basket = [];
+  qtyBuffer = "";
+  qtyValue = 1;
+  pendingProductId = null;
+  renderBasket();
+  feedbackEl.textContent = "";
+  feedbackEl.className = "feedback";
+
+  currentCustomer = randomCustomer();
+  customerImgEl.src = currentCustomer.img;
+  lastOrderText = currentOrder.text;
+  updateBubbleText();
+  customerMetaEl.textContent = randomMeta(level) + " • " + currentCustomer.label;
+  updatePendingDisplay();
+  startBackgroundNoise();
+
+  // сброс предыдущего распознавания
+  if (recognizedBox) recognizedBox.style.display = "none";
+  if (recognizedTextEl) recognizedTextEl.textContent = "—";
+  if (scoreLineEl) scoreLineEl.textContent = "";
+
+  speak(currentOrder.text, currentCustomer);
+}
+
+function repeatOrder(){
+  if (lastOrderText){
+    speak(lastOrderText, currentCustomer);
+  }
+}
+
+function randomThanks(){
+  return thanksPhrases[Math.floor(Math.random() * thanksPhrases.length)];
+}
+
+function submitOrder(){
+  if (!currentOrder){
+    feedbackEl.textContent = "Start an order first: press Next customer."; 
+    feedbackEl.className = "feedback wrong";
+    return;
+  }
+  const expected = JSON.parse(JSON.stringify(currentOrder.items)).sort((a,b)=>a.id.localeCompare(b.id));
+  const actual = JSON.parse(JSON.stringify(basket)).sort((a,b)=>a.id.localeCompare(b.id));
+  let correct = expected.length === actual.length;
+  if (correct){
+    for (let i = 0; i < expected.length; i++){
+      if (!actual[i] || expected[i].id !== actual[i].id || expected[i].qty !== actual[i].qty){
+        correct = false;
+        break;
+      }
+    }
+  }
+  if (correct){
+    feedbackEl.textContent = "Correct! You matched the order.";
+    feedbackEl.className = "feedback correct";
+    const phrase = randomThanks();
+    lastOrderText = phrase;
+    updateBubbleText();
+    speak(phrase, currentCustomer);
+  } else {
+    const expectedText = expected.map(e => {
+      const p = products.find(pr => pr.id === e.id);
+      return e.qty + " x " + p.name;
+    }).join(", ");
+    feedbackEl.innerHTML = 'Not exact. Expected: <strong>' + expectedText + "</strong>";
+    feedbackEl.className = "feedback wrong";
+  }
+}
+
+// ---- KEYPAD ----
+function setupKeypad(){
+  const buttons = document.querySelectorAll(".calc-btn");
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const val = btn.textContent.trim();
+      if (btn.classList.contains("clear")){
+        // Clear key: resets quantity AND clears selected product (so you can start fresh)
+        qtyBuffer = "";
+        qtyValue = 1;
+        pendingProductId = null;
+      } else if (btn.classList.contains("action")){
+        addPendingToBasket();
+      } else if (/^[0-9]$/.test(val)){
+        if (qtyBuffer.length < 3){
+          qtyBuffer += val;
+          qtyValue = parseInt(qtyBuffer, 10) || 1;
+        }
+      }
+      updatePendingDisplay();
+    });
+  });
+}
+
+// ---- INIT ----
+renderProducts();
+updatePendingDisplay();
+setupKeypad();
+initRecognition();
+
+// First placeholder customer
+currentCustomer = customers[0];
+customerImgEl.src = currentCustomer.img;
+
+// Receipt controls (plus/minus/remove)
+receiptEl.addEventListener("click", (e) => {
+  const btn = e.target.closest(".mini-btn");
+  if (!btn) return;
+  const act = btn.dataset.act;
+  const id = btn.dataset.id;
+  const before = cloneBasket(basket);
+
+  const item = basket.find(x => x.id === id);
+  if (!item) return;
+
+  if (act === "plus"){
+    item.qty += 1;
+    setLastAction(before, "Quantity increased. Undo?");
+  } else if (act === "minus"){
+    item.qty -= 1;
+    if (item.qty <= 0){
+      basket = basket.filter(x => x.id !== id);
+      setLastAction(before, "Item removed. Undo?");
+    } else {
+      setLastAction(before, "Quantity decreased. Undo?");
+    }
+  } else if (act === "remove"){
+    basket = basket.filter(x => x.id !== id);
+    setLastAction(before, "Item removed. Undo?");
+  }
+
+  renderBasket();
+});
+
+// Undo button
+const undoBtn = document.getElementById("undoBtn");
+if (undoBtn) undoBtn.addEventListener("click", undoLast);
+
+nextBtn.addEventListener("click", newOrder);
+repeatBtn.addEventListener("click", repeatOrder);
+submitBtn.addEventListener("click", submitOrder);
+showTranscriptCheckbox.addEventListener("change", updateBubbleText);
+if (recordBtn) recordBtn.addEventListener("click", startRecording);
+if (stopBtn) stopBtn.addEventListener("click", stopRecordingFunc);
+
+// Preload voices in some browsers
+if ("speechSynthesis" in window){
+  window.speechSynthesis.onvoiceschanged = () => {};
+}
+</script>
+</body>
+</html>
